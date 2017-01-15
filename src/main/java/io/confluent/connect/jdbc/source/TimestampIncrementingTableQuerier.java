@@ -18,6 +18,7 @@ package io.confluent.connect.jdbc.source;
 
 import org.apache.kafka.connect.data.Decimal;
 import org.apache.kafka.connect.data.Schema;
+import org.apache.kafka.connect.data.SchemaBuilder;
 import org.apache.kafka.connect.data.Struct;
 import org.apache.kafka.connect.errors.ConnectException;
 import org.apache.kafka.connect.source.SourceRecord;
@@ -218,7 +219,11 @@ public class TimestampIncrementingTableQuerier extends TableQuerier {
       default:
         throw new ConnectException("Unexpected query mode: " + mode);
     }
-    return new SourceRecord(partition, offset.toMap(), topic, record.schema(), record);
+    //return new SourceRecord(partition, offset.toMap(), topic, record.schema(), record);
+    Long key = record.getInt64("id");
+    Long timestamp = record.getInt64("datetime");
+    Integer topic_partition = null;
+    return new SourceRecord(partition, offset.toMap(), topic,topic_partition , SchemaBuilder.int64().build(),key, record.schema(), record,timestamp.longValue());
   }
 
   // Visible for testing
