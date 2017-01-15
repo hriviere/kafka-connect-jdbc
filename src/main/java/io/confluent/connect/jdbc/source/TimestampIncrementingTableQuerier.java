@@ -146,7 +146,26 @@ public class TimestampIncrementingTableQuerier extends TableQuerier {
     }
     String queryString = builder.toString();
     log.debug("{} prepared SQL query: {}", this, queryString);
+    // Postgres specific : Set auto commit = false to allow a result with cursor
+    //https://jdbc.postgresql.org/documentation/94/query.html
+    log.debug("{} prepared SQL query: {}", this, queryString);
+    try {
+      db.setAutoCommit(false);
+    } catch (SQLException e) {
+      log.error("Could not set autocommit false: {}", e);
+      throw new ConnectException(e);
+    }
+
+
+
     stmt = db.prepareStatement(queryString);
+    // Postgres specific : Set fetch size. Without : the connect run out of memory !
+    // https://github.com/confluentinc/kafka-connect-jdbc/issues/34
+
+    stmt.setFetchDirection(ResultSet.FETCH_FORWARD);
+    stmt.setFetchSize(500); // TODO : set it with config file
+
+
   }
 
   @Override
