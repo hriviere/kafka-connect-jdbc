@@ -164,7 +164,7 @@ public class TimestampIncrementingTableQuerier extends TableQuerier {
     // https://github.com/confluentinc/kafka-connect-jdbc/issues/34
 
     stmt.setFetchDirection(ResultSet.FETCH_FORWARD);
-    stmt.setFetchSize(500); // TODO : set it with config file
+    stmt.setFetchSize(10000); // TODO : set it with config file
 
 
   }
@@ -220,10 +220,11 @@ public class TimestampIncrementingTableQuerier extends TableQuerier {
         throw new ConnectException("Unexpected query mode: " + mode);
     }
     //return new SourceRecord(partition, offset.toMap(), topic, record.schema(), record);
-    Long key = record.getInt64("id");
+    String key = record.getString("customer");
     Long timestamp = record.getInt64("datetime");
-    Integer topic_partition = null;
-    return new SourceRecord(partition, offset.toMap(), topic,topic_partition , SchemaBuilder.int64().build(),key, record.schema(), record,timestamp.longValue());
+    Integer topicPartition = null;
+    //return new SourceRecord(partition, offset.toMap(), topic, topicPartition, SchemaBuilder.string().build(), key, record.schema(), record, timestamp.longValue());
+    return new SourceRecord(partition, offset.toMap(), topic, topicPartition, SchemaBuilder.string().build(), key, record.schema(), record);
   }
 
   // Visible for testing
